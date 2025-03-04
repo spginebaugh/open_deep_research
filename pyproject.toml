@@ -21,6 +21,7 @@ dependencies = [
     "pymupdf>=1.25.3",
     "xmltodict>=0.14.2",
     "linkup-sdk>=0.2.3",
+    "firecrawl-py>=1.13.2",
 ]
 
 [project.optional-dependencies]

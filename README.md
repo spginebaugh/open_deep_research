@@ -23,6 +23,7 @@ Select a web search tool (by default Open Deep Research uses Tavily):
 * [ArXiv](https://arxiv.org/) - Academic papers in physics, mathematics, computer science, and more
 * [PubMed](https://pubmed.ncbi.nlm.nih.gov/) - Biomedical literature from MEDLINE, life science journals, and online books
 * [Linkup API](https://www.linkup.so/) - General web search
+* [Firecrawl API](https://www.firecrawl.dev/) - General web search
 
 Select a writer model (by default Open Deep Research uses Anthropic Claude 3.5 Sonnet):
 
@@ -129,6 +130,7 @@ export EXA_API_KEY=<your_exa_api_key>
 export PUBMED_API_KEY=<your_pubmed_api_key>
 export PUBMED_EMAIL=<your_email@example.com>
 export LINKUP_API_KEY=<your_linkup_api_key>
+export FIRECRAWL_API_KEY=<your_firecrawl_api_key>
 ```
 
 Launch the assistant with the LangGraph server locally, which will open in your browser:

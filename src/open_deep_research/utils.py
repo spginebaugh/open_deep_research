@@ -7,9 +7,13 @@ from langchain_community.retrievers import ArxivRetriever
 from langchain_community.utilities.pubmed import PubMedAPIWrapper
 from exa_py import Exa
 from linkup import LinkupClient
+from firecrawl import FirecrawlApp
 from typing import List, Optional, Dict, Any
 from open_deep_research.state import Section
+from open_deep_research.state import FirecrawlSchema
 from langsmith import traceable
+from time import sleep
+
 
 
 def get_config_value(value):
@@ -38,6 +42,7 @@ def get_search_params(search_api: str, search_api_config: Optional[Dict[str, Any
         "arxiv": ["load_max_docs", "get_full_documents", "load_all_available_meta"],
         "pubmed": ["top_k_results", "email", "api_key", "doc_content_chars_max"],
         "linkup": ["depth"],
+        "firecrawl": [] # Firecrawl currently accepts no additional parameters
     }
 
     # Get the list of accepted parameters for the given search API
@@ -809,3 +814,82 @@ async def linkup_search(search_queries, depth: Optional[str] = "standard"):
         )
 
     return search_results
+
+
+@traceable
+def firecrawl_search(search_queries):
+    """
+    Performs concurrent web searches using the Firecrawl API.
+
+    Args:
+        search_queries (List[SearchQuery]): List of search queries to process
+
+    Returns:
+        List[dict]: List of search responses from Firecrawl API, one per query. Each response has format:
+            {
+                'query': str, # The original search query
+                'follow_up_questions': None,      
+                'answer': None,
+                'images': list,
+                'results': [                     # List of search results
+                    {
+                        'title': str,            # Title of the webpage
+                        'url': str,              # URL of the result
+                        'content': str,          # Summary/snippet of content
+                        'score': float,          # Relevance score
+                        'raw_content': str|None  # Full page content if available
+                    },
+                    ...
+                ]
+            }        
+    """
+    # maybe use scrape "Extracting without a schema"    
+    firecrawl_app = FirecrawlApp(api_key=os.getenv('FIRECRAWL_API_KEY'))
+
+    search_docs = []
+    for query in search_queries:
+        # Identify websites for extraction
+        num_websites = 2
+    
+        search_response = firecrawl_app.search(
+            query,
+            params={
+                "limit": num_websites,
+                "scrapeOptions": {}
+            }
+        )
+
+        # Create results list for this query
+        results = []
+
+        # Extract content for each result
+        for i, website in enumerate(search_response["data"][:num_websites]):
+            extract_url = website["url"]
+            
+            # Extract content from the website into main_text (raw content) and one_paragraph_summary (content)
+            extract_response = firecrawl_app.scrape_url(extract_url, {
+                'formats': ['json'],
+                'jsonOptions': {
+                    'schema': FirecrawlSchema.model_json_schema()
+                }
+            })
+
+            results.append({
+                "title": website["title"],
+                "url": extract_url,
+                "content": extract_response["json"]["one_paragraph_summary"],
+                "raw_content": extract_response["json"]["full_informative_content"],
+                "score": 1.0
+            })
+
+            sleep(5)
+        # Format response to match Tavily structure
+        search_docs.append({
+            "query": query,
+            "follow_up_questions": None,
+            "answer": None,
+            "images": [],
+            "results": results
+        })
+
+    return search_docs        

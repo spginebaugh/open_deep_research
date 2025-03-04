@@ -62,3 +62,7 @@ class SectionState(TypedDict):
 
 class SectionOutputState(TypedDict):
     completed_sections: list[Section] # Final key we duplicate in outer state for Send() API
+
+class FirecrawlSchema(BaseModel):
+    full_informative_content: str # Full informative content from the web page
+    one_paragraph_summary: str # One paragraph summary of the web page
