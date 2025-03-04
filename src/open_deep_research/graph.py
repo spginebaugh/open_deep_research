@@ -75,13 +75,7 @@ async def generate_report_plan(state: ReportState, config: RunnableConfig):
     # Set writer model (model used for query writing)
     writer_provider = get_config_value(configurable.writer_provider)
     writer_model_name = get_config_value(configurable.writer_model)
-    
-    # Only pass temperature parameter when it's not OpenAI non-GPT models
-    if writer_provider.lower() == "openai" and "gpt" not in writer_model_name.lower():
-        writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider)
-    else:
-        writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider)
-        
+    writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider, temperature=0) 
     structured_llm = writer_model.with_structured_output(Queries)
 
     # Format system instructions
@@ -209,13 +203,7 @@ def generate_queries(state: SectionState, config: RunnableConfig):
     # Generate queries 
     writer_provider = get_config_value(configurable.writer_provider)
     writer_model_name = get_config_value(configurable.writer_model)
-    
-    # Only pass temperature parameter when it's not OpenAI non-GPT models
-    if writer_provider.lower() == "openai" and "gpt" not in writer_model_name.lower():
-        writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider)
-    else:
-        writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider)
-        
+    writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider, temperature=0) 
     structured_llm = writer_model.with_structured_output(Queries)
 
     # Format system instructions
@@ -298,16 +286,9 @@ def write_section(state: SectionState, config: RunnableConfig) -> Command[Litera
     # Generate section  
     writer_provider = get_config_value(configurable.writer_provider)
     writer_model_name = get_config_value(configurable.writer_model)
-    
-    # Only pass temperature parameter when it's not OpenAI non-GPT models
-    if writer_provider.lower() == "openai" and "gpt" not in writer_model_name.lower():
-        writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider)
-    else:
-        writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider)
-        
-    section_content = writer_model.invoke([SystemMessage(content=system_instructions),
-                                           HumanMessage(content="Generate a report section based on the provided sources.")])
-
+    writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider, temperature=0) 
+    section_content = writer_model.invoke([SystemMessage(content=section_writer_instructions),
+                                           HumanMessage(content=section_writer_inputs_formatted)])
     
     # Write content to the section object  
     section.content = section_content.content
@@ -380,13 +361,7 @@ def write_final_sections(state: SectionState, config: RunnableConfig):
     # Generate section  
     writer_provider = get_config_value(configurable.writer_provider)
     writer_model_name = get_config_value(configurable.writer_model)
-    
-    # Only pass temperature parameter when it's not OpenAI non-GPT models
-    if writer_provider.lower() == "openai" and "gpt" not in writer_model_name.lower():
-        writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider)
-    else:
-        writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider)
-        
+    writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider, temperature=0) 
     section_content = writer_model.invoke([SystemMessage(content=system_instructions),
                                            HumanMessage(content="Generate a report section based on the provided sources.")])
     
