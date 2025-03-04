@@ -80,7 +80,7 @@ async def generate_report_plan(state: ReportState, config: RunnableConfig):
     if writer_provider.lower() == "openai" and "gpt" not in writer_model_name.lower():
         writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider)
     else:
-        writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider, temperature=0)
+        writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider)
         
     structured_llm = writer_model.with_structured_output(Queries)
 
@@ -214,7 +214,7 @@ def generate_queries(state: SectionState, config: RunnableConfig):
     if writer_provider.lower() == "openai" and "gpt" not in writer_model_name.lower():
         writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider)
     else:
-        writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider, temperature=0)
+        writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider)
         
     structured_llm = writer_model.with_structured_output(Queries)
 
@@ -303,7 +303,7 @@ def write_section(state: SectionState, config: RunnableConfig) -> Command[Litera
     if writer_provider.lower() == "openai" and "gpt" not in writer_model_name.lower():
         writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider)
     else:
-        writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider, temperature=0)
+        writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider)
         
     section_content = writer_model.invoke([SystemMessage(content=system_instructions),
                                            HumanMessage(content="Generate a report section based on the provided sources.")])
@@ -385,7 +385,7 @@ def write_final_sections(state: SectionState, config: RunnableConfig):
     if writer_provider.lower() == "openai" and "gpt" not in writer_model_name.lower():
         writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider)
     else:
-        writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider, temperature=0)
+        writer_model = init_chat_model(model=writer_model_name, model_provider=writer_provider)
         
     section_content = writer_model.invoke([SystemMessage(content=system_instructions),
                                            HumanMessage(content="Generate a report section based on the provided sources.")])
